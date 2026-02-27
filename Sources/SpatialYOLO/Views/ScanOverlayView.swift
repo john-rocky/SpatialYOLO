@@ -51,40 +51,72 @@ struct ScanOverlayView: View {
                             )
                             : 0.0
 
-                        // Scale bracket styling with proximity
-                        let frontLineWidth: CGFloat = 2.0 + 2.0 * proximityFactor
-                        let frontOpacity: Double = 0.7 + 0.3 * proximityFactor
-                        let backLineWidth: CGFloat = 1.0 + 1.0 * proximityFactor
-                        let backOpacity: Double = 0.2 + 0.2 * proximityFactor
+                        // Scale styling with proximity
+                        let bracketFrontLineWidth: CGFloat = 2.0 + 2.0 * proximityFactor
+                        let bracketFrontOpacity: Double = 0.7 + 0.3 * proximityFactor
+                        let bracketBackLineWidth: CGFloat = 1.0 + 1.0 * proximityFactor
+                        let bracketBackOpacity: Double = 0.2 + 0.2 * proximityFactor
+
+                        let wireFrontLineWidth: CGFloat = 1.6 + 1.6 * proximityFactor
+                        let wireFrontOpacity: Double = 0.56 + 0.24 * proximityFactor
+                        let wireBackLineWidth: CGFloat = 0.8 + 0.8 * proximityFactor
+                        let wireBackOpacity: Double = 0.14 + 0.14 * proximityFactor
 
                         let frontPoints = corners.front.map { fillTransform.toScreen($0) }
                         let backPoints = corners.back.map { fillTransform.toScreen($0) }
 
-                        // Draw depth edges (back-to-front connecting lines)
+                        // Layer 1: Semi-transparent face fills
+                        drawFaceFills(
+                            context: &context,
+                            front: frontPoints,
+                            back: backPoints,
+                            color: color,
+                            proximityFactor: proximityFactor
+                        )
+
+                        // Layer 2: Back face wireframe
+                        drawWireframeFaceEdges(
+                            context: &context,
+                            points: backPoints,
+                            color: color,
+                            opacity: wireBackOpacity,
+                            lineWidth: wireBackLineWidth
+                        )
+
+                        // Layer 3: Depth edges (solid with gradient)
                         drawDepthEdges(
                             context: &context,
                             front: frontPoints,
                             back: backPoints,
-                            color: color
+                            color: color,
+                            frontOpacity: bracketFrontOpacity,
+                            frontLineWidth: bracketFrontLineWidth
                         )
 
-                        // Draw back corner brackets (dimmer)
+                        // Layer 4: Front face wireframe
+                        drawWireframeFaceEdges(
+                            context: &context,
+                            points: frontPoints,
+                            color: color,
+                            opacity: wireFrontOpacity,
+                            lineWidth: wireFrontLineWidth
+                        )
+
+                        // Layer 5: Corner bracket accents (back, then front)
                         drawCornerBrackets(
                             context: &context,
                             points: backPoints,
                             color: color,
-                            opacity: backOpacity,
-                            lineWidth: backLineWidth,
+                            opacity: bracketBackOpacity,
+                            lineWidth: bracketBackLineWidth,
                             size: size
                         )
-
-                        // Draw front corner brackets (bright)
                         drawCornerBrackets(
                             context: &context,
                             points: frontPoints,
                             color: color,
-                            opacity: frontOpacity,
-                            lineWidth: frontLineWidth,
+                            opacity: bracketFrontOpacity,
+                            lineWidth: bracketFrontLineWidth,
                             size: size
                         )
                     }
@@ -96,6 +128,90 @@ struct ScanOverlayView: View {
     }
 
     // MARK: - Drawing
+
+    /// Draw semi-transparent face fills for visible faces of the 3D box.
+    /// Uses signed-area test to determine which faces are visible.
+    private func drawFaceFills(
+        context: inout GraphicsContext,
+        front: [CGPoint],
+        back: [CGPoint],
+        color: Color,
+        proximityFactor: Double
+    ) {
+        guard front.count == 4, back.count == 4 else { return }
+
+        // Base opacity scales with proximity (closer = more visible)
+        let baseOpacity = 0.04 + 0.06 * proximityFactor
+
+        // Define 6 faces as quads: [point indices], opacity multiplier
+        // Front: front[0,1,2,3], Back: back[0,1,2,3]
+        // Top: front[0,1] + back[1,0], Bottom: front[3,2] + back[2,3]
+        // Left: front[0,3] + back[3,0], Right: front[1,2] + back[2,1]
+        let faces: [([CGPoint], CGFloat)] = [
+            // Front face
+            ([front[0], front[1], front[2], front[3]], 1.0),
+            // Back face
+            ([back[0], back[3], back[2], back[1]], 0.3),
+            // Top face
+            ([front[0], front[1], back[1], back[0]], 0.7),
+            // Bottom face
+            ([front[3], back[3], back[2], front[2]], 0.7),
+            // Left face
+            ([front[0], back[0], back[3], front[3]], 0.7),
+            // Right face
+            ([front[1], front[2], back[2], back[1]], 0.7),
+        ]
+
+        for (pts, multiplier) in faces {
+            // Only draw front-facing polygons (negative signed area = CW in screen coords)
+            let area = signedArea(pts)
+            guard area < 0 else { continue }
+
+            var path = Path()
+            path.move(to: pts[0])
+            for i in 1..<pts.count {
+                path.addLine(to: pts[i])
+            }
+            path.closeSubpath()
+
+            let opacity = baseOpacity * Double(multiplier)
+            context.fill(path, with: .color(color.opacity(opacity)))
+        }
+    }
+
+    /// Draw full wireframe edges for a face (4 sides, not just corner brackets).
+    private func drawWireframeFaceEdges(
+        context: inout GraphicsContext,
+        points: [CGPoint],
+        color: Color,
+        opacity: Double,
+        lineWidth: CGFloat,
+        glowRadius: CGFloat = 3
+    ) {
+        guard points.count == 4 else { return }
+
+        var edgePath = Path()
+        for i in 0..<4 {
+            edgePath.move(to: points[i])
+            edgePath.addLine(to: points[(i + 1) % 4])
+        }
+
+        // Glow layer
+        var glowContext = context
+        glowContext.addFilter(.shadow(color: color.opacity(opacity * 0.5), radius: glowRadius))
+        glowContext.stroke(
+            edgePath,
+            with: .color(color.opacity(opacity)),
+            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
+        )
+
+        // Main stroke
+        context.stroke(
+            edgePath,
+            with: .color(color.opacity(opacity)),
+            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
+        )
+    }
 
     /// Draw L-shaped corner brackets at each of the 4 corner points.
     /// Points order: top-left, top-right, bottom-right, bottom-left.
@@ -154,36 +270,56 @@ struct ScanOverlayView: View {
         )
     }
 
-    /// Draw thin connecting lines between front and back corners.
+    /// Draw solid connecting lines between front and back corners with gradient opacity.
+    /// Each edge is split into two halves: front half (brighter) and back half (dimmer).
     private func drawDepthEdges(
         context: inout GraphicsContext,
         front: [CGPoint],
         back: [CGPoint],
-        color: Color
+        color: Color,
+        frontOpacity: Double,
+        frontLineWidth: CGFloat
     ) {
         guard front.count == 4, back.count == 4 else { return }
 
-        var edgePath = Path()
+        let edgeLineWidth = frontLineWidth * 0.6
+        let nearOpacity = frontOpacity * 0.6
+        let farOpacity = frontOpacity * 0.8 * 0.6
+
         for i in 0..<4 {
-            edgePath.move(to: front[i])
-            edgePath.addLine(to: back[i])
+            let f = front[i]
+            let b = back[i]
+            let mid = CGPoint(x: (f.x + b.x) / 2, y: (f.y + b.y) / 2)
+
+            // Front half (brighter)
+            var frontPath = Path()
+            frontPath.move(to: f)
+            frontPath.addLine(to: mid)
+
+            var glowCtx1 = context
+            glowCtx1.addFilter(.shadow(color: color.opacity(nearOpacity * 0.5), radius: 2))
+            glowCtx1.stroke(
+                frontPath,
+                with: .color(color.opacity(nearOpacity)),
+                style: StrokeStyle(lineWidth: edgeLineWidth, lineCap: .round)
+            )
+            context.stroke(
+                frontPath,
+                with: .color(color.opacity(nearOpacity)),
+                style: StrokeStyle(lineWidth: edgeLineWidth, lineCap: .round)
+            )
+
+            // Back half (dimmer, no glow)
+            var backPath = Path()
+            backPath.move(to: mid)
+            backPath.addLine(to: b)
+
+            context.stroke(
+                backPath,
+                with: .color(color.opacity(farOpacity)),
+                style: StrokeStyle(lineWidth: edgeLineWidth, lineCap: .round)
+            )
         }
-
-        // Glow
-        var glowContext = context
-        glowContext.addFilter(.shadow(color: color.opacity(0.3), radius: 3))
-        glowContext.stroke(
-            edgePath,
-            with: .color(color.opacity(0.25)),
-            style: StrokeStyle(lineWidth: 1.0, lineCap: .round)
-        )
-
-        // Main stroke
-        context.stroke(
-            edgePath,
-            with: .color(color.opacity(0.25)),
-            style: StrokeStyle(lineWidth: 1.0, dash: [4, 4], dashPhase: 0)
-        )
     }
 
     // MARK: - Helpers
@@ -194,6 +330,19 @@ struct ScanOverlayView: View {
         let len = hypot(dx, dy)
         guard len > 0.001 else { return .zero }
         return CGPoint(x: dx / len, y: dy / len)
+    }
+
+    /// Signed area of a polygon (positive = CCW, negative = CW).
+    /// Used to determine face visibility (front-facing vs back-facing).
+    private func signedArea(_ pts: [CGPoint]) -> CGFloat {
+        guard pts.count >= 3 else { return 0 }
+        var area: CGFloat = 0
+        for i in 0..<pts.count {
+            let j = (i + 1) % pts.count
+            area += pts[i].x * pts[j].y
+            area -= pts[j].x * pts[i].y
+        }
+        return area / 2
     }
 
     private func accentColor(state: SlotState, distance: Float) -> Color {
