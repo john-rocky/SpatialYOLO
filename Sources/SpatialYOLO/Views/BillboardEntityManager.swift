@@ -96,6 +96,7 @@ final class BillboardEntityManager {
                 if needsTextureUpdate {
                     if let material = makeMaterial(
                         classLabel: object.classLabel,
+                        shortID: String(object.id.uuidString.prefix(4)),
                         size: object.estimatedSize,
                         distance: distance,
                         state: object.state
@@ -121,6 +122,7 @@ final class BillboardEntityManager {
 
                 if let material = makeMaterial(
                     classLabel: object.classLabel,
+                    shortID: String(object.id.uuidString.prefix(4)),
                     size: object.estimatedSize,
                     distance: distance,
                     state: object.state
@@ -161,12 +163,14 @@ final class BillboardEntityManager {
     /// Create an UnlitMaterial with the rendered billboard texture.
     private func makeMaterial(
         classLabel: String,
+        shortID: String,
         size: EstimatedSize,
         distance: Float,
         state: SlotState
     ) -> UnlitMaterial? {
         guard let cgImage = renderer.render(
             classLabel: classLabel,
+            shortID: shortID,
             size: size,
             distance: distance,
             state: state

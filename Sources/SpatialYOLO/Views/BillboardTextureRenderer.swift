@@ -28,6 +28,7 @@ final class BillboardTextureRenderer {
     /// - Returns: Rendered CGImage, or nil on failure
     func render(
         classLabel: String,
+        shortID: String,
         size: EstimatedSize,
         distance: Float,
         state: SlotState
@@ -76,9 +77,10 @@ final class BillboardTextureRenderer {
                 .paragraphStyle: centerStyle
             ]
 
-            // Class label
+            // Class label with short ID
+            let titleText = "\(classLabel) #\(shortID)"
             let titleRect = CGRect(x: 12, y: 14, width: textureWidth - 24, height: 34)
-            (classLabel as NSString).draw(in: titleRect, withAttributes: titleAttrs)
+            (titleText as NSString).draw(in: titleRect, withAttributes: titleAttrs)
 
             // Combined info line: distance · WxHcm
             let infoText = "\(formatDistance(distance)) · \(formatSize(size))"
