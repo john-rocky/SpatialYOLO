@@ -73,7 +73,7 @@ final class BillboardEntityManager {
                 0
             )
 
-            let distanceBucket = Int(distance * 10)  // 10cm buckets
+            let distanceBucket = Int(distance * 100)  // 1cm buckets
             let sizeW = Int(object.estimatedSize.width * 20)   // 5cm buckets
             let sizeH = Int(object.estimatedSize.height * 20)  // 5cm buckets
 

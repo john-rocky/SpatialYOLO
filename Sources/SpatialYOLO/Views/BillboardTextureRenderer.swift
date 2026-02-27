@@ -104,11 +104,11 @@ final class BillboardTextureRenderer {
     }
 
     private func formatDistance(_ distance: Float) -> String {
-        let rounded = round(distance * 10) / 10  // 10cm buckets
-        if rounded < 1.0 {
-            return String(format: "%.0fcm", rounded * 100)
+        let cm = Int(round(distance * 100))  // 1cm precision
+        if cm < 100 {
+            return "\(cm)cm"
         } else {
-            return String(format: "%.1fm", rounded)
+            return String(format: "%.2fm", Float(cm) / 100)
         }
     }
 }
