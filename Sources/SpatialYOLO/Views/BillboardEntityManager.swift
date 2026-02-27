@@ -8,7 +8,7 @@ final class BillboardEntityManager {
     struct BillboardEntry {
         let entity: ModelEntity
         var cachedState: SlotState
-        var cachedDistanceBucket: Int   // distance in 50cm buckets
+        var cachedDistanceBucket: Int   // distance in 10cm buckets
         var cachedSizeW: Int            // width in 5cm buckets
         var cachedSizeH: Int            // height in 5cm buckets
     }
@@ -21,6 +21,11 @@ final class BillboardEntityManager {
     /// Billboard physical size in meters (width x height).
     private let billboardWidth: Float = 0.14
     private let billboardHeight: Float = 0.05
+
+    /// Distance at which billboard is displayed at its base size (no scaling).
+    private let referenceDistance: Float = 1.5
+    /// Maximum scale factor to prevent excessively large billboards.
+    private let maxScale: Float = 4.0
 
     init() {
         self.rootAnchor = AnchorEntity(world: .zero)
@@ -60,22 +65,22 @@ final class BillboardEntityManager {
                 continue
             }
 
+            let distance = cam.distanceToCamera(object.worldPosition)
+            let scale = billboardScale(for: distance)
             let entityPos = object.worldPosition + SIMD3<Float>(
                 0,
-                object.estimatedSize.height * 0.5 + 0.08,
+                object.estimatedSize.height * 0.5 + 0.04 + billboardHeight * scale * 0.5,
                 0
             )
 
-            let distance = cam.distanceToCamera(object.worldPosition)
-            let distanceBucket = Int(distance * 2)  // 50cm buckets
+            let distanceBucket = Int(distance * 10)  // 10cm buckets
             let sizeW = Int(object.estimatedSize.width * 20)   // 5cm buckets
             let sizeH = Int(object.estimatedSize.height * 20)  // 5cm buckets
 
             if var entry = entries[object.id] {
-                // Update position
+                // Update position, orientation, and scale
                 entry.entity.position = entityPos
-
-                // Update orientation to face camera (cylindrical billboard)
+                entry.entity.scale = SIMD3<Float>(repeating: scale)
                 entry.entity.orientation = billboardOrientation(
                     entityPos: entityPos,
                     cameraPos: cameraPos
@@ -108,6 +113,7 @@ final class BillboardEntityManager {
                 // Create new entity
                 let entity = ModelEntity(mesh: planeMesh)
                 entity.position = entityPos
+                entity.scale = SIMD3<Float>(repeating: scale)
                 entity.orientation = billboardOrientation(
                     entityPos: entityPos,
                     cameraPos: cameraPos
@@ -135,6 +141,12 @@ final class BillboardEntityManager {
     }
 
     // MARK: - Private
+
+    /// Compute distance-based scale so far billboards remain readable.
+    /// At referenceDistance the billboard is its base size; beyond that it scales up linearly.
+    private func billboardScale(for distance: Float) -> Float {
+        min(max(distance / referenceDistance, 1.0), maxScale)
+    }
 
     /// Compute billboard orientation: faces camera yaw, stays upright.
     private func billboardOrientation(
