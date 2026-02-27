@@ -4,17 +4,17 @@ import UIKit
 /// Vision Pro glassmorphism style: dark glass background with luminous accent.
 final class BillboardTextureRenderer {
 
-    // Texture dimensions (points). Rendered at 2x scale → 560x200 pixels.
+    // Texture dimensions (points). Rendered at 3x scale → 840x300 pixels.
     private let textureWidth: CGFloat = 280
     private let textureHeight: CGFloat = 100
-    private let scale: CGFloat = 2
+    private let scale: CGFloat = 3
 
     private let renderer: UIGraphicsImageRenderer
 
     init() {
         let size = CGSize(width: 280, height: 100)
         let format = UIGraphicsImageRendererFormat()
-        format.scale = 2
+        format.scale = 3
         format.opaque = false
         self.renderer = UIGraphicsImageRenderer(size: size, format: format)
     }
@@ -42,13 +42,13 @@ final class BillboardTextureRenderer {
             let bgPath = UIBezierPath(roundedRect: insetRect, cornerRadius: cornerRadius)
 
             // Dark glass background
-            let bgColor = UIColor(red: 0.04, green: 0.04, blue: 0.10, alpha: 0.65)
+            let bgColor = UIColor(red: 0.04, green: 0.04, blue: 0.10, alpha: 0.82)
             context.setFillColor(bgColor.cgColor)
             bgPath.fill()
 
-            // Thin luminous border
-            context.setStrokeColor(accentColor.withAlphaComponent(0.5).cgColor)
-            context.setLineWidth(1.0)
+            // Luminous border
+            context.setStrokeColor(accentColor.withAlphaComponent(0.7).cgColor)
+            context.setLineWidth(1.5)
             bgPath.stroke()
 
             // Top accent bar
@@ -61,7 +61,7 @@ final class BillboardTextureRenderer {
 
             // Text styles
             let titleFont = UIFont.systemFont(ofSize: 26, weight: .bold)
-            let detailFont = UIFont.monospacedSystemFont(ofSize: 17, weight: .regular)
+            let detailFont = UIFont.monospacedSystemFont(ofSize: 17, weight: .semibold)
             let centerStyle = NSMutableParagraphStyle()
             centerStyle.alignment = .center
 
@@ -72,7 +72,7 @@ final class BillboardTextureRenderer {
             ]
             let detailAttrs: [NSAttributedString.Key: Any] = [
                 .font: detailFont,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.6),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.85),
                 .paragraphStyle: centerStyle
             ]
 
