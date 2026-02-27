@@ -21,14 +21,8 @@ public struct SpatialYOLOView: View {
             )
             .ignoresSafeArea()
 
-            // Bounding boxes for confirmed objects
-            DetectionBoxOverlayView(
-                objects: pipeline.trackedObjects,
-                camera: pipeline.cameraState
-            )
-
-            // Ghost boxes for stale objects
-            GhostBoxView(
+            // SF scan-style 3D bounding box overlay
+            ScanOverlayView(
                 objects: pipeline.trackedObjects,
                 camera: pipeline.cameraState
             )

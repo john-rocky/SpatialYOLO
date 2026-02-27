@@ -99,6 +99,80 @@ public struct CameraState {
         return CGPoint(x: normalizedY, y: normalizedX)
     }
 
+    /// Result of projecting the 8 corners of an estimated 3D bounding box.
+    /// `front` contains the 4 corners facing the camera; `back` contains the 4 behind.
+    /// Corner order: top-left, top-right, bottom-right, bottom-left.
+    public struct ProjectedBoxCorners {
+        public let front: [CGPoint]  // 4 corners
+        public let back: [CGPoint]   // 4 corners
+    }
+
+    /// Project an estimated 3D bounding box to 8 screen-space corner points.
+    ///
+    /// Since `EstimatedSize` only has width/height, depth is estimated as `min(width, height) * 0.5`.
+    /// The box is oriented toward the camera (cylindrical billboard style).
+    ///
+    /// - Parameters:
+    ///   - center: World position of the object center
+    ///   - size: Estimated physical size (width, height)
+    ///   - samplingYRatio: Where within bbox depth was sampled (0=top, 1=bottom)
+    ///   - cameraPosition: Camera world position for orientation
+    /// - Returns: Projected front/back corners, or nil if center is behind camera
+    public func projectBoxCorners(
+        center: SIMD3<Float>,
+        size: EstimatedSize,
+        samplingYRatio: CGFloat = 0.5,
+        cameraPosition: SIMD3<Float>
+    ) -> ProjectedBoxCorners? {
+        let halfW = size.width * 0.5
+        let halfH = size.height * 0.5
+        let depth = min(size.width, size.height) * 0.5
+        let halfD = depth * 0.5
+
+        // Orient box toward camera (yaw only, stays upright)
+        let direction = cameraPosition - center
+        let yaw = atan2(direction.x, direction.z)
+        let cosYaw = cos(yaw)
+        let sinYaw = sin(yaw)
+
+        // Local axes: right = perpendicular to camera direction, forward = toward camera
+        let right = SIMD3<Float>(cosYaw, 0, -sinYaw)
+        let forward = SIMD3<Float>(sinYaw, 0, cosYaw)
+        let up = SIMD3<Float>(0, 1, 0)
+
+        // Adjust vertical center based on samplingYRatio
+        // samplingYRatio 0=top, 1=bottom: worldPosition projects at samplingYRatio from box top
+        // World Y+ = up = toward screen top (lower portrait Y)
+        // Geometric center is (samplingYRatio - 0.5)*height BELOW worldPosition in world space
+        let verticalOffset = halfH * Float(samplingYRatio * 2 - 1.0)
+        let boxCenter = center + up * verticalOffset
+
+        // 8 corners: front face (toward camera), back face (away from camera)
+        // Order: top-left, top-right, bottom-right, bottom-left
+        let signs: [(Float, Float)] = [(-1, 1), (1, 1), (1, -1), (-1, -1)]  // (right, up)
+
+        var frontPoints: [CGPoint] = []
+        var backPoints: [CGPoint] = []
+
+        for (rSign, uSign) in signs {
+            let offsetR = right * (halfW * rSign)
+            let offsetU = up * (halfH * uSign)
+            let offsetF = forward * halfD
+            let base = boxCenter + offsetR + offsetU
+            let frontCorner = base + offsetF
+            let backCorner = base - offsetF
+
+            guard let fp = projectWorldToScreen(frontCorner, allowOffscreen: true),
+                  let bp = projectWorldToScreen(backCorner, allowOffscreen: true) else {
+                return nil
+            }
+            frontPoints.append(fp)
+            backPoints.append(bp)
+        }
+
+        return ProjectedBoxCorners(front: frontPoints, back: backPoints)
+    }
+
     /// Distance from camera to a world point.
     public func distanceToCamera(_ worldPoint: SIMD3<Float>) -> Float {
         let camPos = SIMD3<Float>(

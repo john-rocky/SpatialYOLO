@@ -19,12 +19,12 @@ final class BillboardEntityManager {
     private let renderer: BillboardTextureRenderer
 
     /// Billboard physical size in meters (width x height).
-    private let billboardWidth: Float = 0.12
-    private let billboardHeight: Float = 0.06
+    private let billboardWidth: Float = 0.14
+    private let billboardHeight: Float = 0.05
 
     init() {
         self.rootAnchor = AnchorEntity(world: .zero)
-        self.planeMesh = .generatePlane(width: 0.12, height: 0.06)
+        self.planeMesh = .generatePlane(width: 0.14, height: 0.05)
         self.renderer = BillboardTextureRenderer()
     }
 
