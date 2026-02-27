@@ -31,12 +31,13 @@ final class BillboardTextureRenderer {
         shortID: String,
         size: EstimatedSize,
         distance: Float,
-        state: SlotState
+        state: SlotState,
+        config: SpatialYOLOConfig
     ) -> CGImage? {
         let image = renderer.image { ctx in
             let rect = CGRect(x: 0, y: 0, width: textureWidth, height: textureHeight)
             let context = ctx.cgContext
-            let accentColor = stateUIColor(state)
+            let accentColor = accentUIColor(state: state, distance: distance, config: config)
 
             let cornerRadius: CGFloat = 10
             let insetRect = rect.insetBy(dx: 1, dy: 1)
@@ -86,13 +87,42 @@ final class BillboardTextureRenderer {
             let infoText = "\(formatDistance(distance)) · \(formatSize(size))"
             let infoRect = CGRect(x: 12, y: 54, width: textureWidth - 24, height: 26)
             (infoText as NSString).draw(in: infoRect, withAttributes: detailAttrs)
+
+            // Proximity bar (thin bar at bottom, fills inversely with distance)
+            let barHeight: CGFloat = 4
+            let barY: CGFloat = textureHeight - barHeight - 8
+            let barInset: CGFloat = insetRect.minX + cornerRadius
+            let barMaxWidth: CGFloat = insetRect.width - cornerRadius * 2
+            let fill = DistanceColor.proximityFill(
+                distance: distance,
+                maxDistance: config.proximityBarMaxDistance
+            )
+            let barWidth = barMaxWidth * fill
+
+            // Bar background track
+            let trackRect = CGRect(x: barInset, y: barY, width: barMaxWidth, height: barHeight)
+            context.setFillColor(UIColor.white.withAlphaComponent(0.1).cgColor)
+            context.fill(trackRect)
+
+            // Bar fill
+            if barWidth > 0 {
+                let fillRect = CGRect(x: barInset, y: barY, width: barWidth, height: barHeight)
+                context.setFillColor(accentColor.withAlphaComponent(0.9).cgColor)
+                context.fill(fillRect)
+            }
         }
         return image.cgImage
     }
 
-    private func stateUIColor(_ state: SlotState) -> UIColor {
+    private func accentUIColor(state: SlotState, distance: Float, config: SpatialYOLOConfig) -> UIColor {
         switch state {
-        case .confirmed: return UIColor(red: 0, green: 0.898, blue: 1.0, alpha: 1.0)  // #00E5FF
+        case .confirmed:
+            return DistanceColor.uiColor(
+                distance: distance,
+                near: config.distanceNear,
+                mid: config.distanceMid,
+                far: config.distanceFar
+            )
         case .stale:     return .systemOrange
         case .candidate: return .systemGray
         case .lost:      return .systemGray

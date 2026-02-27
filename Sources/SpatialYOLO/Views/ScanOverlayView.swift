@@ -6,6 +6,7 @@ import ARKit
 struct ScanOverlayView: View {
     let objects: [TrackedObject]
     let camera: CameraState?
+    var config: SpatialYOLOConfig = .default
 
     var body: some View {
         GeometryReader { geometry in
@@ -36,7 +37,26 @@ struct ScanOverlayView: View {
                             cameraPosition: cameraPos
                         ) else { continue }
 
-                        let color = stateColor(object.state)
+                        let distance = cam.distanceToCamera(object.worldPosition)
+                        let color = accentColor(
+                            state: object.state,
+                            distance: distance
+                        )
+
+                        // Proximity factor: 1.0 at near, 0.0 at far
+                        let proximityFactor = object.state == .confirmed
+                            ? DistanceColor.proximityFill(
+                                distance: distance,
+                                maxDistance: config.distanceFar
+                            )
+                            : 0.0
+
+                        // Scale bracket styling with proximity
+                        let frontLineWidth: CGFloat = 2.0 + 2.0 * proximityFactor
+                        let frontOpacity: Double = 0.7 + 0.3 * proximityFactor
+                        let backLineWidth: CGFloat = 1.0 + 1.0 * proximityFactor
+                        let backOpacity: Double = 0.2 + 0.2 * proximityFactor
+
                         let frontPoints = corners.front.map { fillTransform.toScreen($0) }
                         let backPoints = corners.back.map { fillTransform.toScreen($0) }
 
@@ -53,8 +73,8 @@ struct ScanOverlayView: View {
                             context: &context,
                             points: backPoints,
                             color: color,
-                            opacity: 0.3,
-                            lineWidth: 1.0,
+                            opacity: backOpacity,
+                            lineWidth: backLineWidth,
                             size: size
                         )
 
@@ -63,8 +83,8 @@ struct ScanOverlayView: View {
                             context: &context,
                             points: frontPoints,
                             color: color,
-                            opacity: 0.9,
-                            lineWidth: 2.0,
+                            opacity: frontOpacity,
+                            lineWidth: frontLineWidth,
                             size: size
                         )
                     }
@@ -176,9 +196,15 @@ struct ScanOverlayView: View {
         return CGPoint(x: dx / len, y: dy / len)
     }
 
-    private func stateColor(_ state: SlotState) -> Color {
+    private func accentColor(state: SlotState, distance: Float) -> Color {
         switch state {
-        case .confirmed: return Color(red: 0, green: 0.898, blue: 1.0)   // #00E5FF cyan
+        case .confirmed:
+            return DistanceColor.color(
+                distance: distance,
+                near: config.distanceNear,
+                mid: config.distanceMid,
+                far: config.distanceFar
+            )
         case .stale:     return Color.orange
         case .candidate: return Color.gray
         case .lost:      return Color.gray

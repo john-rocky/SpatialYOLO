@@ -68,6 +68,16 @@ public struct SpatialYOLOConfig: Sendable {
     /// Extended screen bounds for projecting stale/lost objects
     public var extendedScreenBounds: CGFloat = 0.3
 
+    // MARK: - Distance Visual Feedback
+    /// Distance threshold for near range (red-orange), in meters
+    public var distanceNear: Float = 0.5
+    /// Distance threshold for mid range (green), in meters
+    public var distanceMid: Float = 2.0
+    /// Distance threshold for far range (cyan), in meters
+    public var distanceFar: Float = 5.0
+    /// Maximum distance for proximity bar fill (bar empty at this distance)
+    public var proximityBarMaxDistance: Float = 5.0
+
     public static let `default` = SpatialYOLOConfig()
 
     public init() {}

@@ -17,6 +17,7 @@ final class BillboardEntityManager {
     private var entries: [UUID: BillboardEntry] = [:]
     private let planeMesh: MeshResource
     private let renderer: BillboardTextureRenderer
+    private let config: SpatialYOLOConfig
 
     /// Billboard physical size in meters (width x height).
     private let billboardWidth: Float = 0.24
@@ -27,7 +28,8 @@ final class BillboardEntityManager {
     /// Maximum scale factor to prevent excessively large billboards.
     private let maxScale: Float = 5.0
 
-    init() {
+    init(config: SpatialYOLOConfig = .default) {
+        self.config = config
         self.rootAnchor = AnchorEntity(world: .zero)
         self.planeMesh = .generatePlane(width: 0.24, height: 0.085)
         self.renderer = BillboardTextureRenderer()
@@ -173,7 +175,8 @@ final class BillboardEntityManager {
             shortID: shortID,
             size: size,
             distance: distance,
-            state: state
+            state: state,
+            config: config
         ) else { return nil }
 
         do {

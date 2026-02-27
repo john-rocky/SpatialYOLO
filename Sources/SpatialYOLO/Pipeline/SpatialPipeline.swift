@@ -123,4 +123,9 @@ public final class SpatialPipeline: ObservableObject {
     public var currentDepthProvider: ARDepthProvider {
         depthProvider
     }
+
+    /// Current configuration for use by view components.
+    public var currentConfig: SpatialYOLOConfig {
+        config
+    }
 }

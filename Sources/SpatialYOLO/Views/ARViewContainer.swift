@@ -9,19 +9,22 @@ public struct ARViewContainer: UIViewRepresentable {
     let session: ARSession
     let trackedObjects: [TrackedObject]
     let cameraState: CameraState?
+    let config: SpatialYOLOConfig
 
     public init(
         session: ARSession,
         trackedObjects: [TrackedObject] = [],
-        cameraState: CameraState? = nil
+        cameraState: CameraState? = nil,
+        config: SpatialYOLOConfig = .default
     ) {
         self.session = session
         self.trackedObjects = trackedObjects
         self.cameraState = cameraState
+        self.config = config
     }
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(config: config)
     }
 
     public func makeUIView(context: Context) -> ARView {
@@ -45,6 +48,10 @@ public struct ARViewContainer: UIViewRepresentable {
     // MARK: - Coordinator
 
     public final class Coordinator {
-        let manager = BillboardEntityManager()
+        let manager: BillboardEntityManager
+
+        init(config: SpatialYOLOConfig) {
+            self.manager = BillboardEntityManager(config: config)
+        }
     }
 }

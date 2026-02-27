@@ -17,14 +17,16 @@ public struct SpatialYOLOView: View {
             ARViewContainer(
                 session: session,
                 trackedObjects: pipeline.trackedObjects,
-                cameraState: pipeline.cameraState
+                cameraState: pipeline.cameraState,
+                config: pipeline.currentConfig
             )
             .ignoresSafeArea()
 
             // SF scan-style 3D bounding box overlay
             ScanOverlayView(
                 objects: pipeline.trackedObjects,
-                camera: pipeline.cameraState
+                camera: pipeline.cameraState,
+                config: pipeline.currentConfig
             )
         }
     }
