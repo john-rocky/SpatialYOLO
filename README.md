@@ -105,6 +105,43 @@ SpatialYOLOView(pipeline: pipeline, session: session)
 
 See [`Examples/SpatialYOLODemo`](Examples/SpatialYOLODemo) for a complete working app.
 
+### Using a Custom YOLO Model
+
+`YOLODetector` supports any Ultralytics YOLO CoreML model — both **standard (with NMS)** and **end-to-end** formats are auto-detected.
+
+**1. Export your model with NMS**
+
+```python
+from ultralytics import YOLO
+
+model = YOLO("yolo11s.pt")  # any YOLO model
+model.export(format="coreml", nms=True)
+```
+
+**2. Add to Xcode**
+
+Drag the exported `.mlpackage` into your app target in Xcode (check "Copy items if needed").
+
+**3. Use it**
+
+```swift
+let detector = YOLODetector(modelName: "yolo11s")  // no extension needed
+try await detector.loadModel()
+```
+
+Thresholds can be customized:
+
+```swift
+let detector = YOLODetector(
+    modelName: "yolo11s",
+    confidenceThreshold: 0.25,
+    iouThreshold: 0.45,
+    maxDetections: 50
+)
+```
+
+> **How it works:** `YOLODetector` inspects the model's inputs at load time. If `iouThreshold` / `confidenceThreshold` inputs are present (standard NMS export), it uses the Vision framework path. Otherwise (end-to-end export like YOLO26n), it uses direct `MLModel` prediction. Input image size is also auto-detected from the model metadata.
+
 ## Architecture
 
 ```
