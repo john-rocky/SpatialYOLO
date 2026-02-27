@@ -19,17 +19,17 @@ final class BillboardEntityManager {
     private let renderer: BillboardTextureRenderer
 
     /// Billboard physical size in meters (width x height).
-    private let billboardWidth: Float = 0.14
-    private let billboardHeight: Float = 0.05
+    private let billboardWidth: Float = 0.24
+    private let billboardHeight: Float = 0.085
 
     /// Distance at which billboard is displayed at its base size (no scaling).
-    private let referenceDistance: Float = 1.5
+    private let referenceDistance: Float = 1.0
     /// Maximum scale factor to prevent excessively large billboards.
-    private let maxScale: Float = 4.0
+    private let maxScale: Float = 5.0
 
     init() {
         self.rootAnchor = AnchorEntity(world: .zero)
-        self.planeMesh = .generatePlane(width: 0.14, height: 0.05)
+        self.planeMesh = .generatePlane(width: 0.24, height: 0.085)
         self.renderer = BillboardTextureRenderer()
     }
 
