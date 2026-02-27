@@ -1,0 +1,21 @@
+# Xcode
+.build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# Swift Package Manager
+.swiftpm/
+
+# CoreML models
+*.mlpackage
+*.mlmodel
+*.mlmodelc
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Claude Code
+.claude/

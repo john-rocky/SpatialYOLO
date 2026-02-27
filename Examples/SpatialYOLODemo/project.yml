@@ -1,0 +1,25 @@
+name: SpatialYOLODemo
+options:
+  bundleIdPrefix: com.spatialyolo
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "16.0"
+
+packages:
+  SpatialYOLO:
+    path: ../..
+
+targets:
+  SpatialYOLODemo:
+    type: application
+    platform: iOS
+    sources:
+      - SpatialYOLODemo
+    dependencies:
+      - package: SpatialYOLO
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Camera access is required for AR object detection with LiDAR depth sensing."
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: "5.9"

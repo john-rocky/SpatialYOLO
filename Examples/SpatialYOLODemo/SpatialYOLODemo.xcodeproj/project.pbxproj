@@ -1,0 +1,336 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		98686BBADD1E20F816C4E5B8 /* yolo26n.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = F78B1CFDE04CEFC1157FAD7D /* yolo26n.mlpackage */; };
+		BFD782BFB5F2F0C960748766 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 064872C8A58C05ADDB9759E1 /* ContentView.swift */; };
+		C82F621C9DD4F97AFA37B117 /* ARSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E9C97A4CCA7D6A3DEA3FDF /* ARSessionManager.swift */; };
+		CCC119A4E187D075ADFDBA31 /* SpatialYOLO in Frameworks */ = {isa = PBXBuildFile; productRef = DB9883F71F59ABEA82F850E5 /* SpatialYOLO */; };
+		D71304B57B4F461BB08166B0 /* SpatialYOLODemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C4D99B3830599AB6AD4651 /* SpatialYOLODemoApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		064872C8A58C05ADDB9759E1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		48811734C88DBB6CDA4F8A20 /* SpatialYOLODemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SpatialYOLODemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		93E9C97A4CCA7D6A3DEA3FDF /* ARSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARSessionManager.swift; sourceTree = "<group>"; };
+		A3C4D99B3830599AB6AD4651 /* SpatialYOLODemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpatialYOLODemoApp.swift; sourceTree = "<group>"; };
+		A9E86536E63F9E0A33E2EBEE /* SpatialYOLO */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SpatialYOLO; path = ../..; sourceTree = SOURCE_ROOT; };
+		F78B1CFDE04CEFC1157FAD7D /* yolo26n.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = yolo26n.mlpackage; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D017382C9019125E8470AC60 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCC119A4E187D075ADFDBA31 /* SpatialYOLO in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1AD0D4DB00AB23A70C1E1682 = {
+			isa = PBXGroup;
+			children = (
+				C2238A06E7598B6E2C210515 /* Packages */,
+				6089B7C1464147CC562B13DE /* SpatialYOLODemo */,
+				AD5D3D4FFEB249BE960705D8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6089B7C1464147CC562B13DE /* SpatialYOLODemo */ = {
+			isa = PBXGroup;
+			children = (
+				93E9C97A4CCA7D6A3DEA3FDF /* ARSessionManager.swift */,
+				064872C8A58C05ADDB9759E1 /* ContentView.swift */,
+				A3C4D99B3830599AB6AD4651 /* SpatialYOLODemoApp.swift */,
+				F78B1CFDE04CEFC1157FAD7D /* yolo26n.mlpackage */,
+			);
+			path = SpatialYOLODemo;
+			sourceTree = "<group>";
+		};
+		AD5D3D4FFEB249BE960705D8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				48811734C88DBB6CDA4F8A20 /* SpatialYOLODemo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C2238A06E7598B6E2C210515 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				A9E86536E63F9E0A33E2EBEE /* SpatialYOLO */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A3B88515508A191073AF9927 /* SpatialYOLODemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5099F40A6A3FC5DA166D8D29 /* Build configuration list for PBXNativeTarget "SpatialYOLODemo" */;
+			buildPhases = (
+				9D90C4F6B15B4176D7B5BE95 /* Sources */,
+				D017382C9019125E8470AC60 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SpatialYOLODemo;
+			packageProductDependencies = (
+				DB9883F71F59ABEA82F850E5 /* SpatialYOLO */,
+			);
+			productName = SpatialYOLODemo;
+			productReference = 48811734C88DBB6CDA4F8A20 /* SpatialYOLODemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E19CF3A6F158D474A7DE1A25 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 1ABEA2F9F8909C76D7D3B298 /* Build configuration list for PBXProject "SpatialYOLODemo" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1AD0D4DB00AB23A70C1E1682;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8888C2C2EB90C15AEDB4830E /* XCLocalSwiftPackageReference "../.." */,
+			);
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A3B88515508A191073AF9927 /* SpatialYOLODemo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9D90C4F6B15B4176D7B5BE95 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C82F621C9DD4F97AFA37B117 /* ARSessionManager.swift in Sources */,
+				BFD782BFB5F2F0C960748766 /* ContentView.swift in Sources */,
+				D71304B57B4F461BB08166B0 /* SpatialYOLODemoApp.swift in Sources */,
+				98686BBADD1E20F816C4E5B8 /* yolo26n.mlpackage in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3A7A6D21A1309F60FCC9CD66 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = MFN25KNUGJ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required for AR object detection with LiDAR depth sensing.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.spatialyolo.SpatialYOLODemo;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		75A21334C3476587DAD6F8EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = MFN25KNUGJ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required for AR object detection with LiDAR depth sensing.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.spatialyolo.SpatialYOLODemo;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		91B4012566ACBD087CD494C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		92D3CDBD063CF23831DC8833 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1ABEA2F9F8909C76D7D3B298 /* Build configuration list for PBXProject "SpatialYOLODemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				91B4012566ACBD087CD494C3 /* Debug */,
+				92D3CDBD063CF23831DC8833 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5099F40A6A3FC5DA166D8D29 /* Build configuration list for PBXNativeTarget "SpatialYOLODemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A7A6D21A1309F60FCC9CD66 /* Debug */,
+				75A21334C3476587DAD6F8EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		8888C2C2EB90C15AEDB4830E /* XCLocalSwiftPackageReference "../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DB9883F71F59ABEA82F850E5 /* SpatialYOLO */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpatialYOLO;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = E19CF3A6F158D474A7DE1A25 /* Project object */;
+}
