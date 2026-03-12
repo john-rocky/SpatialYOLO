@@ -27,9 +27,12 @@ struct ScanOverlayView: View {
                 )
 
                 Canvas { context, size in
-                    for object in objects {
-                        guard object.state != .lost else { continue }
+                    // Sort objects by distance for glow LOD
+                    let sortedObjects = objects
+                        .filter { $0.state != .lost }
+                        .sorted { cam.distanceToCamera($0.worldPosition) < cam.distanceToCamera($1.worldPosition) }
 
+                    for (index, object) in sortedObjects.enumerated() {
                         guard let corners = cam.projectBoxCorners(
                             center: object.worldPosition,
                             size: object.estimatedSize,
@@ -38,6 +41,7 @@ struct ScanOverlayView: View {
                         ) else { continue }
 
                         let distance = cam.distanceToCamera(object.worldPosition)
+                        let useGlow = index < config.maxGlowObjects
                         let color = accentColor(
                             state: object.state,
                             distance: distance
@@ -80,7 +84,8 @@ struct ScanOverlayView: View {
                             points: backPoints,
                             color: color,
                             opacity: wireBackOpacity,
-                            lineWidth: wireBackLineWidth
+                            lineWidth: wireBackLineWidth,
+                            useGlow: useGlow
                         )
 
                         // Layer 3: Depth edges (solid with gradient)
@@ -90,7 +95,8 @@ struct ScanOverlayView: View {
                             back: backPoints,
                             color: color,
                             frontOpacity: bracketFrontOpacity,
-                            frontLineWidth: bracketFrontLineWidth
+                            frontLineWidth: bracketFrontLineWidth,
+                            useGlow: useGlow
                         )
 
                         // Layer 4: Front face wireframe
@@ -99,7 +105,8 @@ struct ScanOverlayView: View {
                             points: frontPoints,
                             color: color,
                             opacity: wireFrontOpacity,
-                            lineWidth: wireFrontLineWidth
+                            lineWidth: wireFrontLineWidth,
+                            useGlow: useGlow
                         )
 
                         // Layer 5: Corner bracket accents (back, then front)
@@ -109,7 +116,8 @@ struct ScanOverlayView: View {
                             color: color,
                             opacity: bracketBackOpacity,
                             lineWidth: bracketBackLineWidth,
-                            size: size
+                            size: size,
+                            useGlow: useGlow
                         )
                         drawCornerBrackets(
                             context: &context,
@@ -117,7 +125,8 @@ struct ScanOverlayView: View {
                             color: color,
                             opacity: bracketFrontOpacity,
                             lineWidth: bracketFrontLineWidth,
-                            size: size
+                            size: size,
+                            useGlow: useGlow
                         )
                     }
                 }
@@ -186,7 +195,8 @@ struct ScanOverlayView: View {
         color: Color,
         opacity: Double,
         lineWidth: CGFloat,
-        glowRadius: CGFloat = 3
+        glowRadius: CGFloat = 3,
+        useGlow: Bool = true
     ) {
         guard points.count == 4 else { return }
 
@@ -196,14 +206,16 @@ struct ScanOverlayView: View {
             edgePath.addLine(to: points[(i + 1) % 4])
         }
 
-        // Glow layer
-        var glowContext = context
-        glowContext.addFilter(.shadow(color: color.opacity(opacity * 0.5), radius: glowRadius))
-        glowContext.stroke(
-            edgePath,
-            with: .color(color.opacity(opacity)),
-            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
-        )
+        // Glow layer (only for nearby objects)
+        if useGlow {
+            var glowContext = context
+            glowContext.addFilter(.shadow(color: color.opacity(opacity * 0.5), radius: glowRadius))
+            glowContext.stroke(
+                edgePath,
+                with: .color(color.opacity(opacity)),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
+            )
+        }
 
         // Main stroke
         context.stroke(
@@ -221,7 +233,8 @@ struct ScanOverlayView: View {
         color: Color,
         opacity: Double,
         lineWidth: CGFloat,
-        size: CGSize
+        size: CGSize,
+        useGlow: Bool = true
     ) {
         guard points.count == 4 else { return }
 
@@ -253,14 +266,16 @@ struct ScanOverlayView: View {
             bracketPath.addLine(to: endB)
         }
 
-        // Glow layer
-        var glowContext = context
-        glowContext.addFilter(.shadow(color: color.opacity(opacity * 0.6), radius: 4))
-        glowContext.stroke(
-            bracketPath,
-            with: .color(color.opacity(opacity)),
-            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
-        )
+        // Glow layer (only for nearby objects)
+        if useGlow {
+            var glowContext = context
+            glowContext.addFilter(.shadow(color: color.opacity(opacity * 0.6), radius: 4))
+            glowContext.stroke(
+                bracketPath,
+                with: .color(color.opacity(opacity)),
+                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
+            )
+        }
 
         // Main stroke
         context.stroke(
@@ -278,7 +293,8 @@ struct ScanOverlayView: View {
         back: [CGPoint],
         color: Color,
         frontOpacity: Double,
-        frontLineWidth: CGFloat
+        frontLineWidth: CGFloat,
+        useGlow: Bool = true
     ) {
         guard front.count == 4, back.count == 4 else { return }
 
@@ -296,13 +312,15 @@ struct ScanOverlayView: View {
             frontPath.move(to: f)
             frontPath.addLine(to: mid)
 
-            var glowCtx1 = context
-            glowCtx1.addFilter(.shadow(color: color.opacity(nearOpacity * 0.5), radius: 2))
-            glowCtx1.stroke(
-                frontPath,
-                with: .color(color.opacity(nearOpacity)),
-                style: StrokeStyle(lineWidth: edgeLineWidth, lineCap: .round)
-            )
+            if useGlow {
+                var glowCtx1 = context
+                glowCtx1.addFilter(.shadow(color: color.opacity(nearOpacity * 0.5), radius: 2))
+                glowCtx1.stroke(
+                    frontPath,
+                    with: .color(color.opacity(nearOpacity)),
+                    style: StrokeStyle(lineWidth: edgeLineWidth, lineCap: .round)
+                )
+            }
             context.stroke(
                 frontPath,
                 with: .color(color.opacity(nearOpacity)),

@@ -23,6 +23,9 @@ public final class SpatialPipeline: ObservableObject {
     private let slotManager: SlotManager
     private let config: SpatialYOLOConfig
 
+    /// Timestamp of the last processed frame (for throttling).
+    private var lastUpdateTimestamp: TimeInterval = 0
+
     /// Optional built-in detector (Mode A)
     private var detector: ObjectDetector?
     private let session: ARSession
@@ -55,6 +58,13 @@ public final class SpatialPipeline: ObservableObject {
 
     /// Process a new ARFrame with external 2D detections (Mode B).
     public func update(frame: ARFrame, detections: [Detection2D]) {
+        // 0. Frame throttling: skip if too soon since last update
+        if config.minUpdateInterval > 0 {
+            let elapsed = frame.timestamp - lastUpdateTimestamp
+            guard elapsed >= config.minUpdateInterval else { return }
+        }
+        lastUpdateTimestamp = frame.timestamp
+
         // 1. Update depth provider
         depthProvider.updateFrame(frame)
 
@@ -96,9 +106,17 @@ public final class SpatialPipeline: ObservableObject {
         // 8b. Purge lost objects to prevent unbounded array growth
         slotManager.purgeLostObjects()
 
-        // 9. Publish updated state
+        // 9. Publish updated state (nearest first, limited to maxRenderedObjects)
         cameraState = camera
-        trackedObjects = slotManager.visibleObjects
+        let visible = slotManager.visibleObjects
+        if visible.count > config.maxRenderedObjects {
+            trackedObjects = Array(
+                visible.sorted { camera.distanceToCamera($0.worldPosition) < camera.distanceToCamera($1.worldPosition) }
+                    .prefix(config.maxRenderedObjects)
+            )
+        } else {
+            trackedObjects = visible
+        }
     }
 
     /// Process a new ARFrame using the built-in detector (Mode A).

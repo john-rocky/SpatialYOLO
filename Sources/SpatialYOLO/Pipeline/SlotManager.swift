@@ -10,13 +10,17 @@ final class SlotManager {
     /// All tracked objects (never deleted, transition through lifecycle states)
     private(set) var objects: [TrackedObject] = []
 
+    /// O(1) lookup index: object UUID → index in `objects` array.
+    private var objectIndex: [UUID: Int] = [:]
+
     init(config: SpatialYOLOConfig) {
         self.config = config
     }
 
     /// Get a tracked object by ID.
     func object(byID id: UUID) -> TrackedObject? {
-        objects.first { $0.id == id }
+        guard let idx = objectIndex[id] else { return nil }
+        return objects[idx]
     }
 
     /// Update a matched object with a new observation (EMA smoothing).
@@ -94,6 +98,7 @@ final class SlotManager {
             newObject.confirmationThreshold = config.confirmationFrames
             newObject.staleThreshold = config.staleFrames
             newObject.lostThreshold = config.lostFrames
+            objectIndex[newObject.id] = objects.count
             objects.append(newObject)
         }
     }
@@ -119,5 +124,14 @@ final class SlotManager {
     /// Remove lost objects to prevent unbounded array growth.
     func purgeLostObjects() {
         objects.removeAll { $0.state == .lost }
+        rebuildIndex()
+    }
+
+    /// Rebuild the objectIndex dictionary from the current objects array.
+    private func rebuildIndex() {
+        objectIndex.removeAll(keepingCapacity: true)
+        for (i, obj) in objects.enumerated() {
+            objectIndex[obj.id] = i
+        }
     }
 }

@@ -78,6 +78,14 @@ public struct SpatialYOLOConfig: Sendable {
     /// Maximum distance for proximity bar fill (bar empty at this distance)
     public var proximityBarMaxDistance: Float = 5.0
 
+    // MARK: - Performance
+    /// Maximum number of objects to render (sorted by distance, nearest first)
+    public var maxRenderedObjects: Int = 20
+    /// Maximum number of objects that get glow/shadow effects (rest use plain stroke)
+    public var maxGlowObjects: Int = 8
+    /// Minimum interval between pipeline updates (0 = every frame)
+    public var minUpdateInterval: TimeInterval = 0
+
     public static let `default` = SpatialYOLOConfig()
 
     public init() {}
