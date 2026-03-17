@@ -28,6 +28,7 @@ public struct SpatialYOLOView: View {
                 camera: pipeline.cameraState,
                 config: pipeline.currentConfig
             )
+            .ignoresSafeArea()
         }
     }
 }

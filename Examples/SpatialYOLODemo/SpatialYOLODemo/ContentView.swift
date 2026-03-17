@@ -28,6 +28,8 @@ struct ContentView: View {
                 }
             }
         }
+        .statusBarHidden(true)
+        .persistentSystemOverlays(.hidden)
         .task {
             await manager.start()
         }
