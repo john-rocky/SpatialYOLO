@@ -28,6 +28,7 @@ struct ContentView: View {
                 }
             }
         }
+        .ignoresSafeArea()
         .statusBarHidden(true)
         .persistentSystemOverlays(.hidden)
         .task {

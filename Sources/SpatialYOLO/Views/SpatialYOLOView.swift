@@ -30,5 +30,6 @@ public struct SpatialYOLOView: View {
             )
             .ignoresSafeArea()
         }
+        .ignoresSafeArea()
     }
 }
