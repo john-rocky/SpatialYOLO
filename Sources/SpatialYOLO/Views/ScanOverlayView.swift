@@ -78,14 +78,23 @@ struct ScanOverlayView: View {
                             proximityFactor: proximityFactor
                         )
 
-                        // Layer 2: Back face wireframe
+                        // Layer 1.5: Bottom face AO shadow
+                        drawBottomAO(
+                            context: &context,
+                            front: frontPoints,
+                            back: backPoints,
+                            proximityFactor: proximityFactor
+                        )
+
+                        // Layer 2: Back face wireframe (dashed)
                         drawWireframeFaceEdges(
                             context: &context,
                             points: backPoints,
                             color: color,
                             opacity: wireBackOpacity,
                             lineWidth: wireBackLineWidth,
-                            useGlow: useGlow
+                            useGlow: useGlow,
+                            dashPattern: [6, 4]
                         )
 
                         // Layer 3: Depth edges (solid with gradient)
@@ -109,7 +118,7 @@ struct ScanOverlayView: View {
                             useGlow: useGlow
                         )
 
-                        // Layer 5: Corner bracket accents (back, then front)
+                        // Layer 5: Corner bracket accents (back smaller, then front)
                         drawCornerBrackets(
                             context: &context,
                             points: backPoints,
@@ -117,7 +126,8 @@ struct ScanOverlayView: View {
                             opacity: bracketBackOpacity,
                             lineWidth: bracketBackLineWidth,
                             size: size,
-                            useGlow: useGlow
+                            useGlow: useGlow,
+                            bracketScale: 0.7
                         )
                         drawCornerBrackets(
                             context: &context,
@@ -140,6 +150,7 @@ struct ScanOverlayView: View {
 
     /// Draw semi-transparent face fills for visible faces of the 3D box.
     /// Uses signed-area test to determine which faces are visible.
+    /// Per-face directional shading simulates overhead lighting.
     private func drawFaceFills(
         context: inout GraphicsContext,
         front: [CGPoint],
@@ -150,31 +161,32 @@ struct ScanOverlayView: View {
         guard front.count == 4, back.count == 4 else { return }
 
         // Base opacity scales with proximity (closer = more visible)
-        let baseOpacity = 0.04 + 0.06 * proximityFactor
+        let pf = proximityFactor
+        let baseOpacity = 0.08 + 0.10 * pf
 
-        // Define 6 faces as quads: [point indices], opacity multiplier
-        // Front: front[0,1,2,3], Back: back[0,1,2,3]
-        // Top: front[0,1] + back[1,0], Bottom: front[3,2] + back[2,3]
-        // Left: front[0,3] + back[3,0], Right: front[1,2] + back[2,1]
+        // Directional shading multipliers (simulated overhead + camera-facing light)
+        // Front: 1.0 (facing camera, brightest)
+        // Top: 0.85 (overhead ambient light)
+        // Left/Right sides: 0.5 (side-lit, darker)
+        // Bottom: 0.25 (in shadow)
+        // Back: 0.2 (away from camera)
         let faces: [([CGPoint], CGFloat)] = [
-            // Front face
             ([front[0], front[1], front[2], front[3]], 1.0),
-            // Back face
-            ([back[0], back[3], back[2], back[1]], 0.3),
-            // Top face
-            ([front[0], front[1], back[1], back[0]], 0.7),
-            // Bottom face
-            ([front[3], back[3], back[2], front[2]], 0.7),
-            // Left face
-            ([front[0], back[0], back[3], front[3]], 0.7),
-            // Right face
-            ([front[1], front[2], back[2], back[1]], 0.7),
+            ([back[0], back[3], back[2], back[1]], 0.2),
+            ([front[0], front[1], back[1], back[0]], 0.85),
+            ([front[3], back[3], back[2], front[2]], 0.25),
+            ([front[0], back[0], back[3], front[3]], 0.5),
+            ([front[1], front[2], back[2], back[1]], 0.5),
         ]
 
         for (pts, multiplier) in faces {
-            // Only draw front-facing polygons (negative signed area = CW in screen coords)
             let area = signedArea(pts)
             guard area < 0 else { continue }
+
+            // Scale shading by projected area ratio for dynamic adjustment
+            let absArea = abs(area)
+            let facingFactor = min(absArea / 1000, 1.0)
+            let adjustedMultiplier = Double(multiplier) * (0.7 + 0.3 * facingFactor)
 
             var path = Path()
             path.move(to: pts[0])
@@ -183,9 +195,36 @@ struct ScanOverlayView: View {
             }
             path.closeSubpath()
 
-            let opacity = baseOpacity * Double(multiplier)
+            let opacity = baseOpacity * adjustedMultiplier
             context.fill(path, with: .color(color.opacity(opacity)))
         }
+    }
+
+    /// Draw a subtle black AO shadow on the bottom face to ground the box visually.
+    private func drawBottomAO(
+        context: inout GraphicsContext,
+        front: [CGPoint],
+        back: [CGPoint],
+        proximityFactor: Double
+    ) {
+        guard front.count == 4, back.count == 4 else { return }
+
+        // Bottom face: front[3], back[3], back[2], front[2]
+        let bottomPts = [front[3], back[3], back[2], front[2]]
+
+        // Only draw if front-facing
+        let area = signedArea(bottomPts)
+        guard area < 0 else { return }
+
+        var path = Path()
+        path.move(to: bottomPts[0])
+        for i in 1..<bottomPts.count {
+            path.addLine(to: bottomPts[i])
+        }
+        path.closeSubpath()
+
+        let aoOpacity = 0.06 + 0.08 * proximityFactor
+        context.fill(path, with: .color(Color.black.opacity(aoOpacity)))
     }
 
     /// Draw full wireframe edges for a face (4 sides, not just corner brackets).
@@ -196,7 +235,8 @@ struct ScanOverlayView: View {
         opacity: Double,
         lineWidth: CGFloat,
         glowRadius: CGFloat = 3,
-        useGlow: Bool = true
+        useGlow: Bool = true,
+        dashPattern: [CGFloat]? = nil
     ) {
         guard points.count == 4 else { return }
 
@@ -206,6 +246,13 @@ struct ScanOverlayView: View {
             edgePath.addLine(to: points[(i + 1) % 4])
         }
 
+        let style = StrokeStyle(
+            lineWidth: lineWidth,
+            lineCap: .round,
+            lineJoin: .round,
+            dash: dashPattern ?? []
+        )
+
         // Glow layer (only for nearby objects)
         if useGlow {
             var glowContext = context
@@ -213,7 +260,7 @@ struct ScanOverlayView: View {
             glowContext.stroke(
                 edgePath,
                 with: .color(color.opacity(opacity)),
-                style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
+                style: style
             )
         }
 
@@ -221,7 +268,7 @@ struct ScanOverlayView: View {
         context.stroke(
             edgePath,
             with: .color(color.opacity(opacity)),
-            style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
+            style: style
         )
     }
 
@@ -234,14 +281,15 @@ struct ScanOverlayView: View {
         opacity: Double,
         lineWidth: CGFloat,
         size: CGSize,
-        useGlow: Bool = true
+        useGlow: Bool = true,
+        bracketScale: CGFloat = 1.0
     ) {
         guard points.count == 4 else { return }
 
         // Compute bracket length from box size (fraction of shortest side)
         let dx = hypot(points[1].x - points[0].x, points[1].y - points[0].y)
         let dy = hypot(points[3].x - points[0].x, points[3].y - points[0].y)
-        let bracketLen = max(min(dx, dy) * 0.25, 6)
+        let bracketLen = max(min(dx, dy) * 0.25 * bracketScale, 6)
 
         // Direction vectors for each corner's two edges
         let cornerDirs: [(Int, Int, Int)] = [
@@ -286,7 +334,7 @@ struct ScanOverlayView: View {
     }
 
     /// Draw solid connecting lines between front and back corners with gradient opacity.
-    /// Each edge is split into two halves: front half (brighter) and back half (dimmer).
+    /// Each edge is split into two halves with tapered line widths for perspective.
     private func drawDepthEdges(
         context: inout GraphicsContext,
         front: [CGPoint],
@@ -298,7 +346,8 @@ struct ScanOverlayView: View {
     ) {
         guard front.count == 4, back.count == 4 else { return }
 
-        let edgeLineWidth = frontLineWidth * 0.6
+        let frontEdgeWidth = frontLineWidth * 0.7
+        let backEdgeWidth = frontLineWidth * 0.35
         let nearOpacity = frontOpacity * 0.6
         let farOpacity = frontOpacity * 0.8 * 0.6
 
@@ -307,7 +356,7 @@ struct ScanOverlayView: View {
             let b = back[i]
             let mid = CGPoint(x: (f.x + b.x) / 2, y: (f.y + b.y) / 2)
 
-            // Front half (brighter)
+            // Front half (brighter, thicker)
             var frontPath = Path()
             frontPath.move(to: f)
             frontPath.addLine(to: mid)
@@ -318,16 +367,16 @@ struct ScanOverlayView: View {
                 glowCtx1.stroke(
                     frontPath,
                     with: .color(color.opacity(nearOpacity)),
-                    style: StrokeStyle(lineWidth: edgeLineWidth, lineCap: .round)
+                    style: StrokeStyle(lineWidth: frontEdgeWidth, lineCap: .round)
                 )
             }
             context.stroke(
                 frontPath,
                 with: .color(color.opacity(nearOpacity)),
-                style: StrokeStyle(lineWidth: edgeLineWidth, lineCap: .round)
+                style: StrokeStyle(lineWidth: frontEdgeWidth, lineCap: .round)
             )
 
-            // Back half (dimmer, no glow)
+            // Back half (dimmer, thinner, no glow)
             var backPath = Path()
             backPath.move(to: mid)
             backPath.addLine(to: b)
@@ -335,7 +384,7 @@ struct ScanOverlayView: View {
             context.stroke(
                 backPath,
                 with: .color(color.opacity(farOpacity)),
-                style: StrokeStyle(lineWidth: edgeLineWidth, lineCap: .round)
+                style: StrokeStyle(lineWidth: backEdgeWidth, lineCap: .round)
             )
         }
     }

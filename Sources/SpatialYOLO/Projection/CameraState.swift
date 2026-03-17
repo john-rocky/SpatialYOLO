@@ -126,7 +126,7 @@ public struct CameraState {
     ) -> ProjectedBoxCorners? {
         let halfW = size.width * 0.5
         let halfH = size.height * 0.5
-        let depth = min(size.width, size.height) * 0.5
+        let depth = min(size.width, size.height) * 0.75
         let halfD = depth * 0.5
 
         // Orient box toward camera (yaw only, stays upright)
