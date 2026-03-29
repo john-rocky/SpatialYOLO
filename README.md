@@ -15,10 +15,7 @@
   Drop-in SwiftUI view &middot; 2D → 3D lifting &middot; Persistent tracking with unique IDs &middot; SF-style AR overlay
 </p>
 
-<p align="center">
-
-  <img src="https://github.com/user-attachments/assets/0581e459-8d5c-4188-bc54-64051dc24c20" width=300>
-  
+<p align="center">  
  <img src="https://github.com/user-attachments/assets/c8e72c26-fafa-4dc9-949c-06e6c7ef3cd0" width=300>
 </p>
 
@@ -50,6 +47,11 @@ Camera Frame → YOLO 2D Detection → LiDAR Depth Sampling → 3D Position
 - **RealityKit Billboards** — 3D labels with class name + distance that scale with depth
 - **Pluggable Detector** — Use the built-in `YOLODetector` or bring your own model via the `ObjectDetector` protocol
 - **20+ Tunable Parameters** — Fine-tune depth sampling, matching, lifecycle, and rendering via `SpatialYOLOConfig`
+
+<p align="center">
+
+  <img src="https://github.com/user-attachments/assets/0581e459-8d5c-4188-bc54-64051dc24c20" width=300>
+</p>
 
 ## Quick Start
 
