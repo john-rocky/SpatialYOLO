@@ -7,6 +7,10 @@
 
 <h1 align="center">SpatialYOLO</h1>
 
+<p align="center">  
+ <img src="https://github.com/user-attachments/assets/899bb5a8-1534-4f8f-a24b-1006e659fd3f" width=400>
+</p>
+
 <p align="center">
   <strong>Real-time 3D object detection that fuses YOLO with ARKit LiDAR depth</strong>
 </p>
